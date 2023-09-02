@@ -1,4 +1,4 @@
-from base_anonymizer import BaseAnonymizer
+from .base_anonymizer import BaseAnonymizer
 from faker import Faker
 import re
 
@@ -170,4 +170,3 @@ class ReplaceAnonymizer(BaseAnonymizer):
             return self._generate_random_address()
         else:
             raise ValueError(f"Unsupported entity type: {entity_type}")
-        
