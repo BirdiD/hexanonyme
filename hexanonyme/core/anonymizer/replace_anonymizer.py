@@ -170,12 +170,3 @@ class ReplaceAnonymizer(BaseAnonymizer):
             return self._generate_random_address()
         else:
             raise ValueError(f"Unsupported entity type: {entity_type}")
-
-
-if __name__ == '__main__':
-    
-    class_r = ReplaceAnonymizer(faker=False)
-    text = "Je réside au 11 impasse de la défense 75018 Paris. Je m'appelle Amel Douc. J'habite à Bordeaux. Je suis né le 29/12/2021."
-    anonymized_text = class_r.replace(text)
-    print(f"The anonymized text ==> {anonymized_text}")
-    print(class_r.deanonymize(anonymized_text))
