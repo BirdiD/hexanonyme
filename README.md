@@ -9,10 +9,10 @@ Hexanonyme is a Python library designed to anonymize and de-anonymize personally
 
 ## Installation
 
-You can install My Package using `pip`:
+You can install Hexanonyme using `pip`:
 
 ```
-pip install my-package
+pip install hexanonyme
 ```
 
 # Usage
