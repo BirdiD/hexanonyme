@@ -1,9 +1,19 @@
 from setuptools import setup, find_packages
 
+from codecs import open
+from os import path
+
+current_path = path.abspath(path.dirname(__file__))
+
+with open(path.join(current_path, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name='hexanonyme', 
-    version='1.0.0',  
+    version='0.1.0',  
     description='A Python package for PII data anonymization',
+    long_description = long_description,
+    long_description_content_type = "text/markdown",
     author='Dioula DOUCOURE',
     author_email='diioula.doucoure@gmail.com',
     url='https://github.com/BirdiD/hexanonyme',
@@ -15,6 +25,7 @@ setup(
         'torch>=2.0.1',
 
     ],
+    license="MIT",
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
