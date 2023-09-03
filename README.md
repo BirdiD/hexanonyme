@@ -29,7 +29,28 @@ The replace anonymizer can take the following arguments
 - entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS"]`.
 - faker (bool): Whether to use Faker library for fake data generation (default: `True`). For instance if entities list is  ["PER", "LOC"], fakes names and cities will be generated and used to replaced the entities in the original text.
 - replacement_dict : Dictionary of replacement values for specific entity types . If faker argument is set to `False`, you can supply a dictionary for you entity replacement. For instance `{"PER" : "Jean Pierre", "LOC" : "Marseille"}` will replace all PER and LOC entities by respectively **Jean Pierre** and **Marseille**. 
+
 If replacement_dict is not supplied and faker is set to `False`, a default dict will be used: `{'entity_type' : '<entity_type>'}`. 
+
+### Example 1 
+
+```python
+# Initialize ReplaceAnonymizer
+replace_anonymizer = ReplaceAnonymizer()
+
+# Anonymize PII entities
+text = "Je réside au 11 impasse de la défense 75018 Paris. Je m'appelle Amel Douc. J'habite à Bordeaux. Je suis né le 29/12/2021."
+anonymized_text = replace_anonymizer.replace(text)
+print(anonymized_text)
+"Je réside au 7, rue Virginie Morel 48649 Le Rouxboeuf. Je m'appelle Dominique Roux. J'habite à Guilbert. Je suis né le 18-09-1992."
+
+# Deanonymize and restore original text
+restored_text = replace_anonymizer.deanonymize(anonymized_text)
+print(restored_text)
+"Je réside au 11 impasse de la défense 75018 Paris. Je m'appelle Amel Douc. J'habite à Bordeaux. Je suis né le 29/12/2021."
+```
+
+### Example 2
 
 ```python
 # Initialize ReplaceAnonymizer
