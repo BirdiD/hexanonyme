@@ -33,26 +33,37 @@ If replacement_dict is not supplied and faker is set to `False`, a default dict 
 
 ```python
 # Initialize ReplaceAnonymizer
-replace_anonymizer = ReplaceAnonymizer(entities=["PER", "DATE", "ADDRESS"])
-```
+replace_anonymizer = ReplaceAnonymizer(faker=True)
+
 # Anonymize PII entities
 text = "Je réside au 11 impasse de la défense 75018 Paris. Je m'appelle Amel Douc. J'habite à Bordeaux. Je suis né le 29/12/2021."
 anonymized_text = replace_anonymizer.replace(text)
+print(anonymized_text)
+"Je réside au <ADDRESS>. Je m'appelle <PER>. J'habite à <LOC>. Je suis né le <DATE>."
 
-# De-anonymize the text
-original_text = replace_anonymizer.deanonymize(anonymized_text)
-
-# Initialize RedactAnonymizer
-redact_anonymizer = RedactAnonymizer(entities=["PER", "ADDRESS"])
-
-# Redact PII entities
-text = "Je réside au 11 impasse de la défense 75018 Paris. Je m'appelle Amel Douc. J'habite à Bordeaux. Je suis né le 29/12/2021."
-redacted_text = redact_anonymizer.redact(text)
-
-# De-anonymize the redacted text
-restored_text = redact_anonymizer.deanonymize(redacted_text)
+# Deanonymize and restore original text
+restored_text = replace_anonymizer.deanonymize(anonymized_text)
 ```
 
+## RedactAnonymizer
+
+Contrary to the replace anonymizer, the redact anonymizer takes only one argument (the list of entities) 
+- entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS"]`.
+
+```python
+# Initialize ReplaceAnonymizer
+redact_anonymizer = RedactAnonymizer(["PER", "ADDRESS"])
+
+# REDACT PII entities
+text = "Mon nom est Jean Dupont. J'habite au 123 rue de la Ville, Paris."
+redacted_text = redact_anonymizer.replace(text)
+
+print(anonymized_text)
+"Mon nom est [REDACTED]. J'habite au [REDACTED]."
+
+# Deanonymize and restore original text
+restored_text = redact_anonymizer.deanonymize(redacted_text)
+```
 # Why Data Anonymization Matters
 Data anonymization is crucial for protecting individuals' privacy and complying with data protection regulations. When training AI-based language models, it's vital to ensure that personally identifiable information (PII) is not exposed. This library allows you to prepare your data before providing it to large language models like ChatGPT by removing or replacing PII.
 
