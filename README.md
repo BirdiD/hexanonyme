@@ -90,11 +90,19 @@ Data anonymization is crucial for protecting individuals' privacy and complying 
 
 # How it works
 
-Hexanonyme uses Camembert fine-tuned Named Entity Recognition (NER) models specifically tailored to French. The list of available entities currently includes:
+**Hexanonyme** uses **Camembert** language model fine-tuned Named Entity Recognition (NER) tasks. Two finetuned models are used. The models can be found on [Hugging Face](https://huggingface.co/DioulaD) : The list of available entities currently includes:
 
-PER (person names)
-LOC (locations, cities, birthplaces)
-DATE (birthdates)
-ADDRESS (postal addresses)
+- PER (person names)
+- LOC (locations, cities, birthplaces)
+- DATE (birthdates)
+- ADDRESS (postal addresses)
 
 These NER models accurately identify PII entities in French text.
+
+# Contributions
+Contributions are welcomed. If you'd  like to add new anonymization classes or support additional types of entities, follow these steps:
+- Fork the repository
+- Create a new branch for your feature 
+- Make your changes and ensure the tests pass
+- Updated the documentation as needed
+- Submit a pull request
