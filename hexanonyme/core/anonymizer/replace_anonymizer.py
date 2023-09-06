@@ -54,16 +54,19 @@ class ReplaceAnonymizer(BaseAnonymizer):
         per_loc_date_entities = self.merge_overlapping_entities(per_loc_date_entities)
         address_date_entities = self.merge_overlapping_entities(address_date_entities)
 
+        tokens = self.drop_duplicates_and_included_entities(per_loc_date_entities + address_date_entities)
+
+        print(tokens)
 
         for entity_type in self.entities:
-          if entity_type == "PER" and per_loc_date_entities:
-            text = self._replace_entities(text, per_loc_date_entities, entity_type)
-          elif entity_type == "ADDRESS" and address_date_entities:
-            text = self._replace_entities(text, address_date_entities, entity_type)
-          elif entity_type == "LOC" and per_loc_date_entities:
-            text = self._replace_entities(text, per_loc_date_entities, entity_type)
+          if entity_type == "PER":
+            text = self._replace_entities(text, tokens, entity_type)
+          elif entity_type == "ADDRESS":
+            text = self._replace_entities(text, tokens, entity_type)
+          elif entity_type == "LOC":
+            text = self._replace_entities(text, tokens, entity_type)
           elif entity_type == "DATE":
-            text = self._replace_entities(text, per_loc_date_entities + address_date_entities, entity_type)
+            text = self._replace_entities(text, tokens, entity_type)
           else:
             raise ValueError(f"Unsupported entity type: {entity_type}")
 
@@ -108,7 +111,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
             str: The deanonymized text with replaced values restored.
         """
         for original_word, replacement in self.log_replacements:
-            text = text.replace(replacement, original_word, 1)  # Replace only the first occurrence
+            text = text.replace(replacement, original_word, 1) 
         return text
 
     def _generate_random_loc(self):

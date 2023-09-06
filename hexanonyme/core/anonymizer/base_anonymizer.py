@@ -22,6 +22,16 @@ class BaseAnonymizer:
         return per_loc_date_token_classifier, address_token_classifier
 
     def merge_overlapping_entities(self, entities):
+        """
+        Merge overlaps over one entity. 
+        In some cases a person name like "Cecile Da Costa." can be identified as two PER entities bacause of the formating of the text and what comes before
+
+        Args:
+            entities (list): A list of dictionaries, where each dictionary represents an entity.
+
+        Returns:
+            list: A list of dictionaries, where overlaps entities are grouped together
+        """
         merged_entities = []
         i = 0
         while i < len(entities):
@@ -51,15 +61,37 @@ class BaseAnonymizer:
             list: A list of dictionaries, where duplicate entities and entities included in other entities have been dropped.
         """
 
+        # Sort the list by 'start' position
         list_of_dicts = sorted(list_of_dicts, key=lambda x: x['start'])
 
-        for i, dict in enumerate(list_of_dicts):
-            if i > 0 and dict['start'] >= list_of_dicts[i - 1]['start'] and dict['end'] <= list_of_dicts[i - 1]['end']:
-                del list_of_dicts[i]
-                continue
+        # Define a function to check if one entity is included in another
+        def is_included(entity1, entity2):
+            return entity1['start'] >= entity2['start'] and entity1['end'] <= entity2['end']
 
-            if i > 0 and dict['entity_group'] == list_of_dicts[i - 1]['entity_group'] and dict['word'] == list_of_dicts[i - 1]['word']:
-                del list_of_dicts[i]
-                continue
+        # Initialize a variable to keep track of whether changes were made
+        changes_made = True
+
+        # Continue processing until no more changes are made
+        while changes_made:
+            changes_made = False
+            i = 0
+
+            while i < len(list_of_dicts):
+                current_entity = list_of_dicts[i]
+
+                # Check if the current entity is included in another
+                for j in range(i + 1, len(list_of_dicts)):
+                    if is_included(current_entity, list_of_dicts[j]):
+                        # Remove the current entity from the list
+                        list_of_dicts.pop(i)
+                        changes_made = True
+                        break
+                    elif is_included(list_of_dicts[j], current_entity):
+                        # Remove the other entity (j) if it's included in the current entity
+                        list_of_dicts.pop(j)
+                        changes_made = True
+                        break
+                else:
+                    i += 1
 
         return list_of_dicts
