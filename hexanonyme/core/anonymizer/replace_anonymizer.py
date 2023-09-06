@@ -20,7 +20,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
         super().__init__()
         self.faker = faker
         self.replacement_dict = replacement_dict or {}
-        self.per_loc_date_token_classifier, self.address_token_classifier = self.load_pipelines()
+        self.classifiers = self.load_pipelines()
 
         if entities is not None:
           self.entities = entities
@@ -46,25 +46,19 @@ class ReplaceAnonymizer(BaseAnonymizer):
         # Clear log_replacements before each run
         self.log_replacements = []
 
-        # Get entities from both models
-        per_loc_date_entities = self.per_loc_date_token_classifier(text)
-        address_date_entities = self.address_token_classifier(text)
+        #Get entities from all classifiers
+        for classifier in self.classifiers:
+            # Get entities from both models
+            entities_classifier = classifier(text)
+            # Merge overlapping entities
+            entities_classifier = self.merge_overlapping_entities(entities_classifier)
+            entities_total += entities_classifier
 
-        # Merge overlapping entities
-        per_loc_date_entities = self.merge_overlapping_entities(per_loc_date_entities)
-        address_date_entities = self.merge_overlapping_entities(address_date_entities)
-
-        tokens = self.drop_duplicates_and_included_entities(per_loc_date_entities + address_date_entities)
+        tokens = self.drop_duplicates_and_included_entities(entities_total)
 
         for entity_type in self.entities:
-          if entity_type == "PER":
-            text = self._replace_entities(text, tokens, entity_type)
-          elif entity_type == "ADDRESS":
-            text = self._replace_entities(text, tokens, entity_type)
-          elif entity_type == "LOC":
-            text = self._replace_entities(text, tokens, entity_type)
-          elif entity_type == "DATE":
-            text = self._replace_entities(text, tokens, entity_type)
+          if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC"]:
+            text = self._replace_entities(text, token, entity_type)
           else:
             raise ValueError(f"Unsupported entity type: {entity_type}")
 
@@ -139,7 +133,16 @@ class ReplaceAnonymizer(BaseAnonymizer):
         """
         return self.fake.address()
 
-    def _generate_random_name(self):
+    def _generate_random_org(self):
+        """
+        Generate a random name company the Faker library.
+
+        Returns:
+            str: A randomly generated company.
+        """
+        return self.fake.company()
+    
+    def _generate_random_per(self):
         """
         Generate a random name using the Faker library.
 
@@ -150,6 +153,17 @@ class ReplaceAnonymizer(BaseAnonymizer):
         last_name = self.fake.last_name()
         full_name = f"{first_name} {last_name}"
         return full_name
+    
+    def _generate_random_misc(self):
+        """
+        Generate a random misc using the Faker library.
+
+        Returns:
+            str: A randomly generated misc.
+        """
+        words = self.fake.words()
+        capitalized_words = [word.capitalize() for word in words]
+        return ' '.join(capitalized_words)
 
     def _get_faker_value(self, entity_type):
         """
@@ -161,13 +175,8 @@ class ReplaceAnonymizer(BaseAnonymizer):
         Returns:
             str: The generated random faker value.
         """
-        if entity_type == "PER":
-            return self._generate_random_name()
-        elif entity_type == "LOC":
-            return self._generate_random_loc()
-        elif entity_type == "DATE":
-            return self._generate_random_date()
-        elif entity_type == "ADDRESS":
-            return self._generate_random_address()
+        if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC"]:
+            function = getattr(self,"_generate_random_{}".format(entity_type.lower()))
+            return function()
         else:
             raise ValueError(f"Unsupported entity type: {entity_type}")

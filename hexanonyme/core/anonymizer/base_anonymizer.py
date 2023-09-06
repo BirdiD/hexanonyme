@@ -3,23 +3,22 @@ from transformers import pipeline
 
 class BaseAnonymizer:
     def __init__(self):
-        self.entities = ["ADDRESS", "PER", "LOC", "DATE"]
+        self.entities = ["ADDRESS", "PER", "LOC", "DATE", "ORG", "MISC"]
 
     def load_pipelines(self):
-        model_per_loc_date_checkpoint = "DioulaD/birdi-finetuned-ner"
-        model_address_checkpoint = "DioulaD/birdi-finetuned-ner-address-v2"
+        self.models = ["DioulaD/birdi-finetuned-ner",
+                       "DioulaD/birdi-finetuned-ner-address-v2"]
 
-        per_loc_date_token_classifier = pipeline(
-            "token-classification",
-            model=model_per_loc_date_checkpoint,
-            aggregation_strategy="simple"
-        )
-        address_token_classifier = pipeline(
-            "token-classification",
-            model=model_address_checkpoint,
-            aggregation_strategy="simple"
-        )
-        return per_loc_date_token_classifier, address_token_classifier
+        #We iterate on every model to create a list of classifier
+        liste_classifier = []
+        for model in self.models:
+            classifier = pipeline(
+                "token-classification",
+                model=model,
+                aggregation_strategy="simple"
+            )
+            liste_classifier.append(classifier)
+        return liste_classifier
 
     def merge_overlapping_entities(self, entities):
         """

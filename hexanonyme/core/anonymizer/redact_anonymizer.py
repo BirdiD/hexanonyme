@@ -4,7 +4,7 @@ import re
 class RedactAnonymizer(BaseAnonymizer):
     def __init__(self, entities=None):
         super().__init__()
-        self.per_loc_date_token_classifier, self.address_token_classifier = self.load_pipelines()
+        self.classifiers = self.load_pipelines()
 
         if entities is not None:
           self.entities = entities
@@ -23,15 +23,15 @@ class RedactAnonymizer(BaseAnonymizer):
             str: The text with PII entities redacted.
         """
 
-        # Get entities from both models
-        per_loc_date_entities = self.per_loc_date_token_classifier(text)
-        address_date_entities = self.address_token_classifier(text)
+        #Get entities from all classifiers
+        for classifier in self.classifiers:
+            # Get entities from both models
+            entities_classifier = classifier(text)
+            # Merge overlapping entities
+            entities_classifier = self.merge_overlapping_entities(entities_classifier)
+            entities_total += entities_classifier
 
-        # Merge overlapping entities
-        per_loc_date_entities = self.merge_overlapping_entities(per_loc_date_entities)
-        address_date_entities = self.merge_overlapping_entities(address_date_entities)
-
-        entities = self.drop_duplicates_and_included_entities(per_loc_date_entities + address_date_entities)
+        entities = self.drop_duplicates_and_included_entities(entities_total)
 
         self.log_redactions = []
 
@@ -54,7 +54,7 @@ class RedactAnonymizer(BaseAnonymizer):
             str: The text with the specified entities redacted.
             list: List of removed PII entities with their positions and original values.
         """
-        if entity_type in ["ADDRESS", "PER", "DATE", "LOC"]:
+        if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC"]:
           entities = [entity for entity in entities if entity["entity_group"]==entity_type]
           redacted_entities = []
 
@@ -92,9 +92,9 @@ class RedactAnonymizer(BaseAnonymizer):
 
         words = redacted_text.split()
 
-        for i in range(len(words)):
-            if '[REDACTED]' in words[i] and entity_index < len(self.log_redactions):
-                words[i] = re.sub(r"\[REDACTED\]", (self.log_redactions[entity_index]['word']), words[i])
+        for word in words:
+            if '[REDACTED]' in word and entity_index < len(self.log_redactions):
+                word = re.sub(r"\[REDACTED\]", (self.log_redactions[entity_index]['word']), word)
                 entity_index += 1
 
         reconstructed_sentence = ' '.join(words)

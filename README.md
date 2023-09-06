@@ -69,7 +69,7 @@ restored_text = replace_anonymizer.deanonymize(anonymized_text)
 ## RedactAnonymizer
 
 Contrary to the replace anonymizer, the redact anonymizer takes only one argument (the list of entities) 
-- entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS"]`.
+- entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS", "ORG", "MISC"]`.
 
 ```python
 # Initialize ReplaceAnonymizer
@@ -101,6 +101,8 @@ Data anonymization is crucial for protecting individuals' privacy and complying 
 - LOC (locations, cities, birthplaces)
 - DATE (birthdates)
 - ADDRESS (postal addresses)
+- ORG (organisation)
+- MISC (films, series)
 
 These NER models accurately identify PII entities in French text.
 
