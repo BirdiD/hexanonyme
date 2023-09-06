@@ -88,7 +88,7 @@ restored_text = redact_anonymizer.deanonymize(redacted_text)
 
 ## Note
 
-When you provide a list of entities that contains address, make sure address is the first element of the list. Postal addresses may contain some PER or LOC as in the exemple below : `J'habote au 10 rue Victor Hugo, Paris`. To avoid the model considering Victor Hugo as seperate entity from address, add the latter in the first position of the list.
+When you provide a list of entities that contains address, make sure address is the first element of the list. Postal addresses may contain some PER or LOC as in the exemple below : `J'habite au 10 rue Victor Hugo, Paris`. To avoid the model considering Victor Hugo as seperate entity from address, add the latter in the first position of the list.
 
 # Why Data Anonymization Matters
 Data anonymization is crucial for protecting individuals' privacy and complying with data protection regulations. When training AI-based language models, it's vital to ensure that personally identifiable information (PII) is not exposed. This library allows you to prepare your data before providing it to large language models like ChatGPT by removing or replacing PII.
