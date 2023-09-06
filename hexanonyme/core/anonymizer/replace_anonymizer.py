@@ -56,8 +56,6 @@ class ReplaceAnonymizer(BaseAnonymizer):
 
         tokens = self.drop_duplicates_and_included_entities(per_loc_date_entities + address_date_entities)
 
-        print(tokens)
-
         for entity_type in self.entities:
           if entity_type == "PER":
             text = self._replace_entities(text, tokens, entity_type)
