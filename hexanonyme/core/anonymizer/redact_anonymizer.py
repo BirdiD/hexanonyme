@@ -32,7 +32,7 @@ class RedactAnonymizer(BaseAnonymizer):
         address_date_entities = self.merge_overlapping_entities(address_date_entities)
 
         entities = self.drop_duplicates_and_included_entities(per_loc_date_entities + address_date_entities)
-        # Redact specified entities in the text
+
         self.log_redactions = []
 
         for entity_type in self.entities:
@@ -67,7 +67,6 @@ class RedactAnonymizer(BaseAnonymizer):
 
               # Replace the entity with a redaction marker (e.g., "[REDACTED]")
               text = re.sub(word, "[REDACTED]", text)
-              #print(f"Entity {word} has been removed from text and result is {text}")
 
               # Log the removed PII entity
               redacted_entities.append({"entity_group": entity_group, "word": word, "start": start, "end": end})
