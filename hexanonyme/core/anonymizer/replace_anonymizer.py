@@ -20,7 +20,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
         super().__init__()
         self.faker = faker
         self.replacement_dict = replacement_dict or {}
-        self.classifiers = self.load_pipelines()
+        self.classifier_filtres = self.load_pipelines()
 
         if entities is not None:
           self.entities = entities
@@ -47,17 +47,22 @@ class ReplaceAnonymizer(BaseAnonymizer):
         self.log_replacements = []
 
         #Get entities from all classifiers
-        for classifier in self.classifiers:
+        entities_total = []
+        for [classifier, filtre] in self.classifier_filtres:
             # Get entities from both models
             entities_classifier = classifier(text)
             # Merge overlapping entities
             entities_classifier = self.merge_overlapping_entities(entities_classifier)
+            entities_classifier = [entity for entity in entities_classifier if entity["entity_group"] in filtre]
             entities_total += entities_classifier
-
+        
+        entities_total += self.find_telephone_number(text)
+        entities_total += self.find_email(text)
+        
         tokens = self.drop_duplicates_and_included_entities(entities_total)
 
         for entity_type in self.entities:
-          if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC"]:
+          if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC", "TEL", "MAIL"]:
             text = self._replace_entities(text, token, entity_type)
           else:
             raise ValueError(f"Unsupported entity type: {entity_type}")
@@ -165,6 +170,24 @@ class ReplaceAnonymizer(BaseAnonymizer):
         capitalized_words = [word.capitalize() for word in words]
         return ' '.join(capitalized_words)
 
+    def _generate_random_tel(self):
+        """
+        Generate a random telephone number using the Faker library.
+
+        Returns:
+            str: A randomly telephone number.
+        """
+        return self.fake.phone_number()
+    
+    def _generate_random_mail(self):
+        """
+        Generate a random email using the Faker library.
+
+        Returns:
+            str: A randomly email.
+        """
+        return self.fake.ascii_free_email()
+
     def _get_faker_value(self, entity_type):
         """
         Generate a random faker entity_type value
@@ -175,7 +198,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
         Returns:
             str: The generated random faker value.
         """
-        if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC"]:
+        if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC", "TEL", "MAIL"]:
             function = getattr(self,"_generate_random_{}".format(entity_type.lower()))
             return function()
         else:
