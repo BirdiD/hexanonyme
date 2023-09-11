@@ -4,7 +4,7 @@ import re
 class RedactAnonymizer(BaseAnonymizer):
     def __init__(self, entities=None):
         super().__init__()
-        self.classifiers = self.load_pipelines()
+        self.classifier_filtres = self.load_pipelines()
 
         if entities is not None:
           self.entities = entities
@@ -24,13 +24,17 @@ class RedactAnonymizer(BaseAnonymizer):
         """
 
         #Get entities from all classifiers
-        for classifier in self.classifiers:
+        for [classifier, filtre] in self.classifier_filtres:
             # Get entities from both models
             entities_classifier = classifier(text)
             # Merge overlapping entities
             entities_classifier = self.merge_overlapping_entities(entities_classifier)
+            entities_classifier = [entity for entity in entities_classifier if entity["entity_group"] in filtre]
             entities_total += entities_classifier
-
+            
+        entities_total += self.find_telephone_number(text)
+        entities_total += self.find_email(text)
+        
         entities = self.drop_duplicates_and_included_entities(entities_total)
 
         self.log_redactions = []
@@ -54,7 +58,7 @@ class RedactAnonymizer(BaseAnonymizer):
             str: The text with the specified entities redacted.
             list: List of removed PII entities with their positions and original values.
         """
-        if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC"]:
+        if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC", "TEL", "MAIL"]:
           entities = [entity for entity in entities if entity["entity_group"]==entity_type]
           redacted_entities = []
 
