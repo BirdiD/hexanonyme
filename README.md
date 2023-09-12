@@ -26,7 +26,7 @@ from hexanonyme import ReplaceAnonymizer, RedactAnonymizer
 ## ReplaceAnoymizer
 
 The replace anonymizer can take the following arguments 
-- entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS"]`.
+- entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS", "ORG", "MISC", "TEL", "MAIL"]`.
 - faker (bool): Whether to use Faker library for fake data generation (default: `True`). For instance if entities list is  ["PER", "LOC"], fakes names and cities will be generated and used to replaced the entities in the original text.
 - replacement_dict : Dictionary of replacement values for specific entity types . If faker argument is set to `False`, you can supply a dictionary for you entity replacement. For instance `{"PER" : "Jean Pierre", "LOC" : "Marseille"}` will replace all PER and LOC entities by respectively **Jean Pierre** and **Marseille**. 
 
@@ -69,7 +69,7 @@ restored_text = replace_anonymizer.deanonymize(anonymized_text)
 ## RedactAnonymizer
 
 Contrary to the replace anonymizer, the redact anonymizer takes only one argument (the list of entities) 
-- entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS", "ORG", "MISC"]`.
+- entities : List of entity types to be anonymized. Default values are: `["PER", "LOC", "DATE", "ADDRESS", "ORG", "MISC", "TEL", "MAIL"]`.
 
 ```python
 # Initialize ReplaceAnonymizer
@@ -103,6 +103,8 @@ Data anonymization is crucial for protecting individuals' privacy and complying 
 - ADDRESS (postal addresses)
 - ORG (organisation)
 - MISC (films, series)
+- TEL (telephone number)
+- MAIL (email address)
 
 These NER models accurately identify PII entities in French text.
 

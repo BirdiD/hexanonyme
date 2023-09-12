@@ -24,6 +24,7 @@ class RedactAnonymizer(BaseAnonymizer):
         """
 
         #Get entities from all classifiers
+        entities_total = []
         for [classifier, filtre] in self.classifier_filtres:
             # Get entities from both models
             entities_classifier = classifier(text)
@@ -31,10 +32,10 @@ class RedactAnonymizer(BaseAnonymizer):
             entities_classifier = self.merge_overlapping_entities(entities_classifier)
             entities_classifier = [entity for entity in entities_classifier if entity["entity_group"] in filtre]
             entities_total += entities_classifier
-            
+
         entities_total += self.find_telephone_number(text)
         entities_total += self.find_email(text)
-        
+
         entities = self.drop_duplicates_and_included_entities(entities_total)
 
         self.log_redactions = []
@@ -95,10 +96,9 @@ class RedactAnonymizer(BaseAnonymizer):
         entity_index = 0
 
         words = redacted_text.split()
-
-        for word in words:
+        for i, word in enumerate(words):
             if '[REDACTED]' in word and entity_index < len(self.log_redactions):
-                word = re.sub(r"\[REDACTED\]", (self.log_redactions[entity_index]['word']), word)
+                words[i] = re.sub(r"\[REDACTED\]", self.log_redactions[entity_index]['word'], word)
                 entity_index += 1
 
         reconstructed_sentence = ' '.join(words)

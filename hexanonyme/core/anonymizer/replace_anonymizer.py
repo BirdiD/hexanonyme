@@ -55,15 +55,15 @@ class ReplaceAnonymizer(BaseAnonymizer):
             entities_classifier = self.merge_overlapping_entities(entities_classifier)
             entities_classifier = [entity for entity in entities_classifier if entity["entity_group"] in filtre]
             entities_total += entities_classifier
-        
+
         entities_total += self.find_telephone_number(text)
         entities_total += self.find_email(text)
-        
+
         tokens = self.drop_duplicates_and_included_entities(entities_total)
 
         for entity_type in self.entities:
           if entity_type in ["ADDRESS", "PER", "DATE", "LOC", "ORG", "MISC", "TEL", "MAIL"]:
-            text = self._replace_entities(text, token, entity_type)
+            text = self._replace_entities(text, tokens, entity_type)
           else:
             raise ValueError(f"Unsupported entity type: {entity_type}")
 
@@ -108,7 +108,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
             str: The deanonymized text with replaced values restored.
         """
         for original_word, replacement in self.log_replacements:
-            text = text.replace(replacement, original_word, 1) 
+            text = text.replace(replacement, original_word, 1)
         return text
 
     def _generate_random_loc(self):
@@ -146,7 +146,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
             str: A randomly generated company.
         """
         return self.fake.company()
-    
+
     def _generate_random_per(self):
         """
         Generate a random name using the Faker library.
@@ -158,7 +158,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
         last_name = self.fake.last_name()
         full_name = f"{first_name} {last_name}"
         return full_name
-    
+
     def _generate_random_misc(self):
         """
         Generate a random misc using the Faker library.
@@ -178,7 +178,7 @@ class ReplaceAnonymizer(BaseAnonymizer):
             str: A randomly telephone number.
         """
         return self.fake.phone_number()
-    
+
     def _generate_random_mail(self):
         """
         Generate a random email using the Faker library.
