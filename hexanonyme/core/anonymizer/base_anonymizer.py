@@ -1,5 +1,5 @@
 from transformers import pipeline
-
+import re
 
 class BaseAnonymizer:
     def __init__(self):
@@ -29,7 +29,7 @@ class BaseAnonymizer:
 
     def merge_overlapping_entities(self, entities):
         """
-        Merge overlaps over one entity. 
+        Merge overlaps over one entity.
         In some cases a person name like "Cecile Da Costa." can be identified as two PER entities bacause of the formating of the text and what comes before
 
         Args:
@@ -55,7 +55,7 @@ class BaseAnonymizer:
             merged_entities.append(entity)
             i = j
         return merged_entities
-        
+
     def find_telephone_number(self, text):
         entities = []
         multiples_regex_formats = ["((?:(?:\+|00)33[\s.-]{0,3}(?:\(0\)[\s.-]{0,3})?|0)[1-9](?:(?:[\s.-]?\d{2}){4}|\d{2}(?:[\s.-]?\d{3}){2}))"]
@@ -71,7 +71,7 @@ class BaseAnonymizer:
                 }
                 entities.append(entity)
         return entities
-    
+
     def find_email(self, text):
         entities = []
         multiples_regex_formats = ["([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)"]
@@ -87,7 +87,7 @@ class BaseAnonymizer:
                 }
                 entities.append(entity)
         return entities
-    
+
     def drop_duplicates_and_included_entities(self, list_of_dicts):
         """
         Drop duplicate entities and entities included in other entities from a list of dictionaries.
